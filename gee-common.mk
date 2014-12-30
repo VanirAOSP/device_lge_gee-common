@@ -14,8 +14,8 @@
 # limitations under the License.
 #
 
-# This file includes all definitions that apply to ALL gee devices, and
-# are also specific to gee devices
+# This file includes all definitions that apply to ALL gee-common devices, and
+# are also specific to gee-common devices
 #
 # Everything in this directory will become public
 
@@ -29,12 +29,12 @@ PRODUCT_AAPT_CONFIG := normal hdpi xhdpi
 PRODUCT_AAPT_PREF_CONFIG := xhdpi
 
 PRODUCT_PACKAGES := \
-	lights.msm8960 \
-	libwpa_client \
-	hostapd \
-	dhcpcd.conf \
-	wpa_supplicant \
-	wpa_supplicant.conf
+	lights.gee-common \
+    libwpa_client \
+    hostapd \
+    dhcpcd.conf \
+    wpa_supplicant \
+    wpa_supplicant.conf
 
 PRODUCT_PACKAGES += \
     charger_res_images
@@ -46,12 +46,15 @@ PRODUCT_PACKAGES += \
         VisualizationWallpapers \
         librs_jni
 
+# Script for baseband name resolution
 PRODUCT_COPY_FILES += \
-	kernel/lge/gee/drivers/staging/prima/firmware_bin/WCNSS_cfg.dat:system/vendor/firmware/wlan/prima/WCNSS_cfg.dat \
-	kernel/lge/gee/drivers/staging/prima/firmware_bin/WCNSS_qcom_cfg.ini:system/etc/wifi/WCNSS_qcom_cfg.ini \
+	device/lge/gee-common/ramdisk/fetch-swv:system/bin/fetch-swv
+
+PRODUCT_COPY_FILES += \
+	device/lge/gee-common/wifi/WCNSS_cfg.dat:system/vendor/firmware/wlan/prima/WCNSS_cfg.dat \
+	device/lge/gee-common/wifi/WCNSS_qcom_cfg.ini:system/etc/wifi/WCNSS_qcom_cfg.ini \
 	device/lge/gee-common/wifi/WCNSS_qcom_wlan_nv.bin:system/etc/wifi/WCNSS_qcom_wlan_nv.bin \
-	device/lge/gee-common/wifi/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
-    device/lge/gee-common/wifi/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
+	device/lge/gee-common/ramdisk/init.qcom.wifi.sh:system/etc/ramdisk/init.qcom.wifi.sh
 
 PRODUCT_COPY_FILES += \
 	device/lge/gee-common/audio/audio_policy.conf:system/etc/audio_policy.conf
@@ -60,19 +63,20 @@ PRODUCT_COPY_FILES += \
 	device/lge/gee-common/audio/mixer_paths.xml:system/etc/mixer_paths.xml
 
 PRODUCT_COPY_FILES += \
-	device/lge/gee-common/ramdisk/init.qcom.rc:root/init.qcom.rc \
-	device/lge/gee-common/ramdisk/init.qcom.usb.rc:root/init.qcom.usb.rc \
-	device/lge/gee-common/ramdisk/fstab.qcom:root/fstab.qcom \
-	device/lge/gee-common/ramdisk/twrp.fstab:recovery/root/etc/twrp.fstab \
-	device/lge/gee-common/ramdisk/ueventd.qcom.rc:root/ueventd.qcom.rc \
-	device/lge/gee-common/ramdisk/fetch-swv:system/bin/fetch-swv
+	device/lge/gee-common/prebuilt/thermald-gee.conf:system/etc/thermald.conf
 
 PRODUCT_COPY_FILES += \
+	device/lge/gee-common/ramdisk/init.qcom.rc:root/ramdisk/init.qcom.rc \
+	device/lge/gee-common/ramdisk/init.qcom.usb.rc:root/ramdisk/init.qcom.usb.rc \
+	device/lge/gee-common/ramdisk/fstab.qcom:root/randisk/fstab.qcom \
+	device/lge/gee-common/ramdisk/ueventd.qcom.rc:root/ramdisk/ueventd.qcom.rc \
 	device/lge/gee-common/media/media_profiles.xml:system/etc/media_profiles.xml \
-	device/lge/gee-common/media/media_codecs.xml:system/etc/media_codecs.xml \
 	frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
 	frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
-	frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml
+	frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
+	device/lge/gee-common/media/media_codecs.xml:system/etc/media_codecs.xml \
+	frameworks/av/media/libstagefright/data/media_codecs_ffmpeg.xml:system/etc/media_codecs_ffmpeg.xml \
+	device/lge/gee-common/ramdisk/twrp.fstab:etc/twrp.fstab
 
 # Prebuilt kl and kcm keymaps
 PRODUCT_COPY_FILES += \
@@ -105,31 +109,29 @@ PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
 	frameworks/native/data/etc/android.software.print.xml:system/etc/permissions/android.software.print.xml \
 	frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
-	frameworks/native/data/etc/android.hardware.telephony.cdma.xml:system/etc/permissions/android.hardware.telephony.cdma.xml \
 	frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
 	frameworks/native/data/etc/android.hardware.audio.low_latency.xml:system/etc/permissions/android.hardware.audio.low_latency.xml \
 	frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
 	frameworks/native/data/etc/android.hardware.ethernet.xml:system/etc/permissions/android.hardware.ethernet.xml
 
+
 # NFC packages
 PRODUCT_PACKAGES += \
-	libnfc \
-	libnfc_jni \
-	Nfc \
-	Tag 
+        libnfc \
+        libnfc_jni \
+        Nfc \
+        Tag \
+        com.android.nfc_extras
 
 # NFCEE access control
-ifeq ($(TARGET_BUILD_VARIANT),user)
-    NFCEE_ACCESS_PATH := device/lge/gee-common/nfc/nfcee_access.xml
-else
-    NFCEE_ACCESS_PATH := device/lge/gee-common/nfc/nfcee_access_debug.xml
-endif
+        NFCEE_ACCESS_PATH := device/lge/gee-common/nfc/nfcee_access.xml
 
-# NFC access control + feature files + configuration
+# NFC feature files + configuration
 PRODUCT_COPY_FILES += \
     $(NFCEE_ACCESS_PATH):system/etc/nfcee_access.xml \
+    frameworks/native/data/etc/com.android.nfc_extras.xml:system/etc/permissions/com.android.nfc_extras.xml \
     frameworks/native/data/etc/android.hardware.nfc.xml:system/etc/permissions/android.hardware.nfc.xml \
-    frameworks/native/data/etc/android.hardware.nfc.hce.xml:system/etc/permissions/android.hardware.nfc.hce.xml
+    device/lge/gee-common/nfc/libnfc-brcm.conf:system/etc/libnfc-brcm.conf
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.opengles.version=196608
@@ -146,9 +148,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	persist.audio.fluence.voicecall=true \
 	persist.audio.handset.mic=dmic \
 	persist.audio.fluence.mode=endfire \
-	persist.audio.lowlatency.rec=false \
-	af.resampler.quality=4
-
+	persist.audio.lowlatency.rec=false
 
 # Do not power down SIM card when modem is sent to Low Power Mode.
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -197,30 +197,28 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
 	power.msm8960
 
-# QC Perf for Power HAL
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.vendor.extension_library=/system/lib/libqc-opt.so
-
 PRODUCT_COPY_FILES += \
-	device/lge/gee-common/ramdisk/init.qcom.bt.sh:system/etc/init.qcom.bt.sh
+	device/lge/gee-common/ramdisk/init.qcom.bt.sh:system/etc/ramdisk/init.qcom.bt.sh
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.qualcomm.bt.hci_transport=smd
 
+ifeq ($(findstring tiny, $(TARGET_PRODUCT)),)
 PRODUCT_PACKAGES += \
-	camera.qcom \
+	camera.gee-common \
 	camera.msm8960 \
 	libmmcamera_interface2 \
 	libmmcamera_interface
 
 PRODUCT_PACKAGES += \
-        libmm-omxcore \
+	libmm-omxcore \
 	libdivxdrmdecrypt \
 	libOmxVdec \
 	libOmxVenc \
 	libOmxCore \
 	libstagefrighthw \
 	libc2dcolorconvert
+endif
 
 # GPS configuration
 PRODUCT_COPY_FILES += \
@@ -247,25 +245,27 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
 	keystore.msm8960
 
+PRODUCT_PACKAGES += \
+        hostapd_default.conf \
+        wpa_supplicant_overlay.conf \
+        p2p_supplicant_overlay.conf
+
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 	rild.libpath=/system/lib/libril-qc-qmi-1.so
 
-# Telephony Properties
 PRODUCT_PROPERTY_OVERRIDES += \
-    	telephony.lteOnCdmaDevice=1 \
-    	telephony.lte.cdma.device=1 \
+        telephony.lteOnCdmaDevice=0 \
         telephony.lteOnGsmDevice=1 \
-        telephony.lte.gsm.device=1 \
-    	ro.telephony.default_network=10 \
-    	ro.ril.def.preferred.network=10 \
-        ril.subscription.types=NV,RUIM
+        ro.telephony.default_network=9
 
+ifeq ($(findstring tiny, $(TARGET_PRODUCT)),)
 PRODUCT_PROPERTY_OVERRIDES += \
 	drm.service.enabled=true
+endif
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	wifi.interface=wlan0 \
-	wifi.supplicant_scan_interval=15
+	wifi.supplicant_scan_interval=120
 
 # Enable AAC 5.1 output
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -281,12 +281,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 	persist.sys.usb.config=mtp
 
-PRODUCT_RUNTIMES := \
-	runtime_libdvm_default 
-
-PRODUCT_RUNTIMES += \
-	runtime_libart
-
 # Hardware codecs
 PRODUCT_PROPERTY_OVERRIDES += \
     qcom.hw.aac.encoder=true
@@ -299,6 +293,17 @@ PRODUCT_PACKAGES += \
 
 # QRNGD
 PRODUCT_PACKAGES += qrngd
+	
+# Enable USB-OTG
+PRODUCT_PROPERTY_OVERRIDES += \
+	ro.usb.host=1c
+
+PRODUCT_COPY_FILES += \
+        device/lge/gee-common/input/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml
 
 $(call inherit-product, frameworks/native/build/phone-xhdpi-2048-dalvik-heap.mk)
+
+# This is the gee-common-specific audio package
+# $(call inherit-product-if-exists, frameworks/base/data/sounds/AudioPackage10.mk)
+
 $(call inherit-product, hardware/qcom/msm8960/msm8960.mk)

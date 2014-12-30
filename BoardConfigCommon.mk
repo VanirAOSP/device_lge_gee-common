@@ -14,25 +14,23 @@
 # limitations under the License.
 #
 
-TARGET_GLOBAL_CFLAGS += -mfloat-abi=softfp
-TARGET_GLOBAL_CPPFLAGS += -mfloat-abi=softfp
+TARGET_GLOBAL_CFLAGS += -mfpu=neon -mfloat-abi=softfp
+TARGET_GLOBAL_CPPFLAGS += -mfpu=neon -mfloat-abi=softfp
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
 TARGET_CPU_SMP := true
 TARGET_ARCH := arm
 TARGET_ARCH_VARIANT := armv7-a-neon
 TARGET_CPU_VARIANT := krait
-TARGET_ARCH_VARIANT_CPU := cortex-a15
-TARGET_ARCH_VARIANT_FPU := neon-vfpv4
+ARCH_ARM_HAVE_TLS_REGISTER := true
 
-# Krait optimization 
-TARGET_USE_QCOM_BIONIC_OPTIMIZATION := true
+# Krait optimizations
+TARGET_USE_KRAIT_BIONIC_OPTIMIZATION := true
 TARGET_USE_KRAIT_PLD_SET := true
 TARGET_KRAIT_BIONIC_PLDOFFS := 10
 TARGET_KRAIT_BIONIC_PLDTHRESH := 10
 TARGET_KRAIT_BIONIC_BBTHRESH := 64
 TARGET_KRAIT_BIONIC_PLDSIZE := 64
-ARCH_ARM_HAVE_TLS_REGISTER := true
 
 # Compiler Optimizations
 ARCH_ARM_HIGH_OPTIMIZATION := true
@@ -42,11 +40,16 @@ COMMON_GLOBAL_CFLAGS += -D__ARM_USE_PLD -D__ARM_CACHE_LINE_SIZE=64
 
 TARGET_NO_BOOTLOADER := true
 
+# Inline kernel building
+TARGET_KERNEL_SOURCE := kernel/lge/msm
+TARGET_KERNEL_CONFIG := geeb_defconfig
+
 BOARD_KERNEL_BASE := 0x80200000
 BOARD_KERNEL_PAGESIZE := 2048
-BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.hardware=qcom lpj=67677 user_debug=31 androidboot.selinux=permissive
+BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.hardware=geeb lpj=67677 user_debug=31
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01600000
-TARGET_KERNEL_SOURCE := kernel/lge/gee
+
+TARGET_OTA_ASSERT_DEVICE := gee,geeb,geehrc,geehrc_4g_spr,geespr,ls970,geehrc4g,geehrc4g_spr_us,geebus,e970,e973,e971,e975,geeb_att_us,gee_a,geebusc,geeb_att
 
 BOARD_USES_ALSA_AUDIO:= true
 BOARD_USES_LEGACY_ALSA_AUDIO:= false
@@ -61,8 +64,12 @@ TARGET_NO_RADIOIMAGE := true
 TARGET_BOARD_PLATFORM := msm8960
 TARGET_BOOTLOADER_BOARD_NAME := GEE
 TARGET_BOOTLOADER_NAME=gee
+TARGET_BOARD_INFO_FILE := device/lge/gee-common/conf/board-info.txt
 
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/lge/gee-common/bluetooth
+
+# Use the QCOM PowerHAL
+TARGET_USES_QCOM_POWERHAL := true
 
 # FIXME: HOSTAPD-derived wifi driver
 BOARD_HAS_QCOM_WLAN := true
@@ -77,21 +84,31 @@ WIFI_DRIVER_FW_PATH_AP  := "ap"
 
 BOARD_EGL_CFG := device/lge/gee-common/conf/egl.cfg
 
+#BOARD_USES_HGL := true
+#BOARD_USES_OVERLAY := true
 USE_OPENGL_RENDERER := true
 TARGET_USES_ION := true
 TARGET_USES_OVERLAY := true
 TARGET_USES_SF_BYPASS := true
-TARGET_USES_C2D_COMPOSITION := true
+TARGET_USES_C2D_COMPOSITION := false
 
-TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+# Enable dex-preoptimization to speed up first boot sequence
+ifeq ($(HOST_OS),linux)
+  ifeq ($(TARGET_BUILD_VARIANT),user)
+    ifeq ($(WITH_DEXPREOPT),)
+      WITH_DEXPREOPT := true
+    endif
+  endif
+endif
+WITH_DEXPREOPT_BOOT_IMG_ONLY ?= true
 
-TARGET_RECOVERY_FSTAB = device/lge/gee-common/ramdisk/fstab.qcom
 TARGET_USERIMAGES_USE_EXT4 := true
 BOARD_BOOTIMAGE_PARTITION_SIZE := 23068672 # 22M
 BOARD_RECOVERYIMAGE_PARTITION_SIZE := 23068672 # 22M
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 880803840 # 840M
-
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 6189744128 # 5.9G
+BOARD_CACHEIMAGE_PARTITION_SIZE := 738197504 # 704 MByte
+BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_FLASH_BLOCK_SIZE := 131072 # (BOARD_KERNEL_PAGESIZE * 64)
 
 BOARD_USES_SECURE_SERVICES := true
@@ -99,50 +116,91 @@ BOARD_USES_SECURE_SERVICES := true
 BOARD_USES_EXTRA_THERMAL_SENSOR := true
 BOARD_USES_CAMERA_FAST_AUTOFOCUS := true
 
+BOARD_HAL_STATIC_LIBRARIES := libdumpstate.gee
+
 BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := $(TARGET_BOARD_PLATFORM)
 TARGET_NO_RPC := true
+TARGET_PROVIDES_GPS_LOC_API := true
 
-TARGET_RELEASETOOLS_EXTENSIONS := device/lge/gee-common
+TARGET_RELEASETOOLS_EXTENSIONS := device/lge/geeb
 
 BOARD_CHARGER_ENABLE_SUSPEND := true
 
-#Custom HALs
-TARGET_PROVIDES_LIBLIGHT := true
+BOARD_HAVE_LOW_LATENCY_AUDIO := true
+
+-include vendor/lge/gee/BoardConfigVendor.mk
+
+BOARD_HAS_NO_SELECT_BUTTON := true
+
+BOARD_SEPOLICY_DIRS += \
+       device/lge/gee-common/sepolicy
+
+BOARD_SEPOLICY_UNION += \
+       bluetooth_loader.te \
+       bridge.te \
+       camera.te \
+       conn_init.te \
+       device.te \
+       domain.te \
+       file.te \
+       file_contexts \
+       hostapd.te \
+       kickstart.te \
+       kcal_dev.te \
+       mediaserver.te \
+       mpdecision.te \
+       netmgrd.te \
+       property.te \
+       property_contexts \
+       qmux.te \
+       rild.te \
+       rmt.te \
+       sensors.te \
+       surfaceflinger.te \
+       system_app.te \
+       system_server.te \
+       tee.te \
+       te_macros \
+       thermald.te \
+       vibe_dev.te \
+       ueventd.te
+
+BOARD_HARDWARE_CLASS := device/lge/gee-common/cmhw/
+
+BOARD_CHARGER_ENABLE_SUSPEND := true
+
+USE_DEVICE_SPECIFIC_CAMERA:= true
 USE_DEVICE_SPECIFIC_QCOM_PROPRIETARY:= true
-TARGET_POWERHAL_VARIANT := qcom
-TARGET_POWERHAL_TOUCH_BOOST := true
-
-MALLOC_IMPL := dlmalloc
-
-# Shader cache config options
-# Maximum size of the  GLES Shaders that can be cached for reuse.
-# Increase the size if shaders of size greater than 12KB are used.
-MAX_EGL_CACHE_KEY_SIZE := 12*1024
-
-# Maximum GLES shader cache size for each app to store the compiled shader
-# binaries. Decrease the size if RAM or Flash Storage size is a limitation
-# of the device.
-MAX_EGL_CACHE_SIZE := 2048*1024
 
 OVERRIDE_RS_DRIVER := libRSDriver_adreno.so
 
 HAVE_ADRENO_SOURCE:= false
 
-include vendor/lge/gee/BoardConfigVendor.mk
+# Include an expanded selection of fonts
+EXTENDED_FONT_FOOTPRINT := true
+
+MALLOC_IMPL := dlmalloc
+
+-include vendor/lge/gee/BoardConfigVendor.mk
 
 #TWRP config
+#switch .fstabs to build recovery
+#TARGET_RECOVERY_FSTAB = device/lge/gee-common/ramdisk/twrp.fstab
+TARGET_RECOVERY_FSTAB = device/lge/gee-common/ramdisk/fstab.qcom
+RECOVERY_FSTAB_VERSION = 2
 DEVICE_RESOLUTION := 720x1280
 RECOVERY_SDCARD_ON_DATA := true
 RECOVERY_GRAPHICS_USE_LINELENGTH := true
-BOARD_HAS_NO_REAL_SDCARD := true
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
-TW_INCLUDE_JB_CRYPTO := true
+#TW_INCLUDE_CRYPTO := true
+TW_INCLUDE_L_CRYPTO := true
 TW_FLASH_FROM_STORAGE := true
 TW_NO_USB_STORAGE := true
+HAVE_SELINUX := true
+TARGET_USERIMAGES_USE_F2FS := true
+
+#TW_INCLUDE_DUMLOCK := true
 TW_INTERNAL_STORAGE_PATH := "/data/media"
 TW_INTERNAL_STORAGE_MOUNT_POINT := "data"
-TW_EXTERNAL_STORAGE_PATH := "/usb-otg"
-TW_EXTERNAL_STORAGE_MOUNT_POINT := "usb-otg"
-
-#Asserts
-TARGET_OTA_ASSERT_DEVICE := gee,geeb,geehrc,e975,geehrc_4g_spr,geespr,ls970,geehrc4g,geehrc4g_spr_us,geebus,e970,e973,e971,geeb_att_us
+TW_EXTERNAL_STORAGE_PATH := "/external_sd"
+TW_EXTERNAL_STORAGE_MOUNT_POINT := "external_sd"
