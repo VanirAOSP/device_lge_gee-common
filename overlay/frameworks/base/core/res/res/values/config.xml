@@ -19,22 +19,26 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <!-- Device supports LED flashlight -->
-    <bool name="config_enableTorch">true</bool>
-
     <!-- If this is true, the screen will fade off. -->
     <bool name="config_animateScreenLights">false</bool>
 
-       <!-- Default color for notification LED is RED. -->
+    <!-- Default color for notification LED is RED. -->
     <color name="config_defaultNotificationColor">#ff0000</color>
 
     <!-- Default LED on time for notification LED in milliseconds. -->
-    <integer name="config_defaultNotificationLedOn">1000</integer>
+    <integer name="config_defaultNotificationLedOn">500</integer>
 
     <!-- Default LED off time for notification LED in milliseconds. -->
-    <integer name="config_defaultNotificationLedOff">9000</integer>
-    
-        <!-- Is the battery LED intrusive? Used to decide if there should be a disable option -->
+    <integer name="config_defaultNotificationLedOff">2000</integer>
+
+    <!-- Is the notification LED intrusive? Used to decide if there should be a disable option -->
+    <bool name="config_intrusiveNotificationLed">true</bool>
+
+    <!-- Does the notification LED support multiple colors?
+         Used to decide if the user can change the colors -->
+    <bool name="config_multiColorNotificationLed">true</bool>
+
+    <!-- Is the battery LED intrusive? Used to decide if there should be a disable option -->
     <bool name="config_intrusiveBatteryLed">true</bool>
 
     <!-- Does the battery LED support multiple colors? Used to decide if the user can change the colors -->
@@ -96,14 +100,14 @@
          than the size of the config_autoBrightnessLevels array.
          This must be overridden in platform specific overlays -->
     <integer-array name="config_autoBrightnessButtonBacklightValues">
-        <item>255</item>
-        <item>255</item>
-        <item>255</item>
-        <item>255</item>
-        <item>255</item>
-        <item>255</item>
-        <item>255</item>
-        <item>255</item>
+        <item>100</item>
+        <item>100</item>
+        <item>100</item>
+        <item>100</item>
+        <item>175</item>
+        <item>175</item>
+        <item>175</item>
+        <item>175</item>
         <item>255</item>
         <item>255</item>
         <item>255</item>
@@ -115,7 +119,7 @@
 
     <!-- Default screen brightness setting.
          Must be in the range specified by minimum and maximum. -->
-    <integer name="config_screenBrightnessSettingDefault">87</integer>
+    <integer name="config_screenBrightnessSettingDefault">95</integer>
 
     <!-- Minimum screen brightness setting allowed by the power manager.
          The user is forbidden from setting the brightness below this level. -->
@@ -205,14 +209,21 @@
     <!-- Vibrator pattern for feedback about a long screen/key press -->
     <integer-array name="config_longPressVibePattern">
         <item>0</item>
-        <item>7</item>
-        <item>10</item>
+        <item>25</item>
     </integer-array>
 
     <!-- Vibrator pattern for feedback about touching a virtual key -->
     <integer-array name="config_virtualKeyVibePattern">
-        <item>7</item>
+        <item>0</item>
+        <item>25</item>
     </integer-array>
+
+    <!-- Specifies the amount of time to disable virtual keys after the screen is touched
+         in order to filter out accidental virtual key presses due to swiping gestures
+         or taps near the edge of the display.  May be 0 to disable the feature.
+         It is recommended that this value be no more than 250 ms.
+         This feature should be disabled for most devices. -->
+    <integer name="config_virtualKeyQuietTimeMillis">250</integer>
 
     <!-- Vibrator pattern for a very short but reliable vibration for soft keyboard tap -->
     <integer-array name="config_keyboardTapVibePattern">
@@ -237,7 +248,7 @@
     </string-array>
 
     <!-- reference volume index for music stream to limit headphone volume and display warning -->
-    <integer name="config_safe_media_volume_index">7</integer>
+    <integer name="config_safe_media_volume_index">10</integer>
 
     <bool name="config_enableWifiDisplay">true</bool>
 
@@ -245,22 +256,8 @@
          If the span is equal to or greater than this size, a scaling gesture
          will begin, where supported. (See android.view.ScaleGestureDetector)
 
-         This value has been tuned for the "Gee" device. -->
+         This value has been tuned for the "mako" device. -->
     <dimen name="config_minScalingSpan">35mm</dimen>
-
-    <!--
-    Hardware 'face' keys present on the device, stored as a bit field.
-         This integer should equal the sum of the corresponding value for each
-         of the following keys present:
-             1 - Home
-             2 - Back
-             4 - Menu
-             8 - Assistant (search)
-            16 - App switch
-         For example, a device with Home, Back and Menu keys would set this
-         config to 7. 
-     -->
-     <integer name="config_deviceHardwareKeys">7</integer>
 
     <!-- Setting this true forces the headset jack switches to use the/dev/input/event subsystem
          rather than the uevent framework. -->
@@ -283,43 +280,33 @@
     <bool name="config_suspendWhenScreenOffDueToProximity">true</bool>
 
     <!-- MMS user agent string -->
-    <string name="config_mms_user_agent" translatable="false">Nexus4</string>
+    <string name="config_mms_user_agent" translatable="false">OpimtusG</string>
 
     <!-- MMS user agent prolfile url -->
     <string name="config_mms_user_agent_profile_url" translatable="false">http://gsm.lge.com/html/gsm/20130914.xml</string>
 
-<!-- An Array of "[Connection name],[ConnectivityManager.TYPE_xxxx],
-         [associated radio-type],[priority],[restoral-timer(ms)],[dependencyMet]  -->
-    <!-- the 5th element "resore-time" indicates the number of milliseconds to delay
-         before automatically restore the default connection.  Set -1 if the connection
-         does not require auto-restore. -->
-    <!-- the 6th element indicates boot-time dependency-met value. -->
-  <string-array translatable="false" name="networkAttributes">
-        <item>"wifi,1,1,1,-1,true"</item>
-        <item>"mobile,0,0,0,-1,true"</item>
-        <item>"mobile_mms,2,0,2,60000,true"</item>
-        <item>"mobile_supl,3,0,2,60000,true"</item>
-        <item>"mobile_dun,4,0,2,60000,true"</item>
-        <item>"mobile_hipri,5,0,3,60000,true"</item>
-        <item>"bluetooth,7,7,2,-1,true"</item>
-        <item>"mobile_fota,10,0,2,60000,true"</item>
-        <item>"mobile_ims,11,0,2,60000,true"</item>
-        <item>"mobile_cbs,12,0,2,60000,true"</item>
-        <item>"wifi_p2p,13,1,0,-1,true"</item>
-    </string-array>
+    <!-- Hardware 'face' keys present on the device, stored as a bit field.
+         This integer should equal the sum of the corresponding value for each
+         of the following keys present:
+             1 - Home
+             2 - Back
+             4 - Menu
+             8 - Assistant (search)
+            16 - App switch
+         For example, a device with Home, Back and Menu keys would set this
+         config to 7. -->
+    <integer name="config_deviceHardwareKeys">7</integer>
 
-<bool name="config_telephony_use_own_number_for_voicemail">true</bool>
+    <!--  Maximum number of supported users -->
+    <integer name="config_multiuserMaximumUsers">4</integer>
+    <!--  Whether Multiuser UI should be shown -->
+    <bool name="config_enableMultiUserUI">true</bool>
 
-    <!-- If the DUN connection for this CDMA device supports more than just DUN -->
-    <!-- traffic you should list them here. -->
-    <!-- If this device is not CDMA this is ignored.  If this list is empty on -->
-    <!-- a DUN-requiring CDMA device, the DUN APN will support -->
-    <!-- just DUN. -->
-    <string-array translatable="false" name="config_cdma_dun_supported_types">
-        <item>"default"</item>
-        <item>"dun"</item>
-        <item>"mms"</item>
-        <item>"supl"</item>
-    </string-array>
-    
+    <!-- Screen brightness when dozing -->
+    <integer name="config_screenBrightnessDoze">17</integer>
+
+    <!-- Dream of notifications -->
+    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>
+    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>
+    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>
 </resources>
